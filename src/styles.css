@@ -1,0 +1,35 @@
+@import './fonts.css';
+
+body { margin: 0; }
+* { box-sizing: border-box; }
+button { font-family: inherit; cursor: pointer; }
+input, select { font-family: inherit; min-width: 0; }
+input:focus, select:focus { outline: none; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 120, 160, .25);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+@keyframes osFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes osPulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* Прототипын style-hover утгуудын орлуулга */
+.hv-bg2:hover { background: var(--panel2) !important; }
+.hv-bright:hover { filter: brightness(1.1); }
+.hv-red:hover { color: #C4554D !important; opacity: 1 !important; }
+.hv-line-acc1:hover { border-color: var(--acc1) !important; }
+.hv-line-acc2:hover { border-color: var(--acc2) !important; }
+.hv-line-acc3:hover { border-color: var(--acc3) !important; }
+.hv-go-acc1:hover { color: var(--acc1) !important; border-color: var(--acc1) !important; }
+.hv-go-acc2:hover { color: var(--acc2) !important; border-color: var(--acc2) !important; }
+.hv-tint1:hover { background: rgba(127, 119, 221, .2) !important; }
+.hv-tint2:hover { background: rgba(29, 158, 117, .2) !important; }
+
+input::placeholder { color: var(--tx2); opacity: .7; }
+
+/* Цагийн input-ууд системийн харагдацгүй, дизайнтай нийцнэ */
+input[type="time"]::-webkit-calendar-picker-indicator { opacity: .4; }

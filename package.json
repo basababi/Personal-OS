@@ -1,0 +1,76 @@
+{
+  "name": "personal-os",
+  "productName": "Personal OS",
+  "version": "1.0.0",
+  "description": "Personal OS — a local-first personal dashboard for Windows: daily planner, habit tracker, MLOps roadmap, English A1→B2 journey, smart native reminders.",
+  "author": "Basbish <babibasa8@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/basababi/Personal-OS.git"
+  },
+  "main": "electron/main.cjs",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "dist": "vite build && electron-builder --win --publish never",
+    "make:icons": "node scripts/make-icon.cjs",
+    "fetch:fonts": "node scripts/fetch-fonts.cjs",
+    "shot": "electron . --shot=shots"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^36.0.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^4.1.9"
+  },
+  "build": {
+    "appId": "mn.basbish.personalos",
+    "productName": "Personal OS",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron/**",
+      "assets/**",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "assets/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "PersonalOS-Setup-${version}.${ext}"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "basababi",
+      "repo": "Personal-OS"
+    }
+  }
+}
