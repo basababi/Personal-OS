@@ -5,19 +5,18 @@ import { FONT, MONO, WORDST, WCOL, checkbox, inputSt, primaryBtn } from '../them
 import { td } from '../lib/dates';
 import { wordsToday, engToday, engLevel } from '../lib/derive';
 import { IconX } from '../icons';
+import { DelBtn } from '../components/bits';
 
-const RESOURCES = [
-  { t: 'BBC Learning English', k: 'ПОДКАСТ' },
-  { t: '6 Minute English', k: 'ПОДКАСТ' },
-  { t: 'EnglishPod101', k: 'ВИДЕО' },
-  { t: 'English Grammar in Use · B1', k: 'НОМ' }
-];
+const RES_KINDS = ['ПОДКАСТ', 'ВИДЕО', 'НОМ', 'САЙТ', 'КУРС'];
 
 export function English() {
   const { d, commit, p } = useStore();
   const [en, setEn] = useState('');
   const [mn, setMn] = useState('');
   const [ex, setEx] = useState('');
+  const [newGr, setNewGr] = useState<Record<string, string>>({});
+  const [newRes, setNewRes] = useState('');
+  const [resKind, setResKind] = useState(0);
   const wt = wordsToday(d);
   const lvl = engLevel(d);
 
@@ -26,6 +25,24 @@ export function English() {
     const id = d.words.reduce((m, w) => Math.max(m, w.id), 0) + 1;
     d.words.unshift({ id, en: en.trim(), mn: mn.trim() || '—', ex: ex.trim(), st: 0, date: td(0) });
     setEn(''); setMn(''); setEx('');
+    commit();
+  };
+
+  const addGrammar = (lv: string) => {
+    const t = (newGr[lv] || '').trim();
+    if (!t) return;
+    const gr = d.grammar.find(g => g.lv === lv);
+    if (!gr) return;
+    gr.items.push({ t, on: false });
+    setNewGr({ ...newGr, [lv]: '' });
+    commit();
+  };
+
+  const addResource = () => {
+    if (!newRes.trim()) return;
+    const id = d.resources.reduce((m, r) => Math.max(m, r.id), 0) + 1;
+    d.resources.push({ id, t: newRes.trim(), k: RES_KINDS[resKind] });
+    setNewRes('');
     commit();
   };
 
@@ -100,7 +117,7 @@ export function English() {
             </div>
           </Card>
 
-          {/* Дүрмийн tracker */}
+          {/* Дүрмийн tracker — сэдэв нэмж/хасаж болно */}
           <Card>
             <SecLabel color={p.a2}>Дүрмийн tracker</SecLabel>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 14 }}>
@@ -110,16 +127,22 @@ export function English() {
                   <div key={gr.lv} style={{ minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
                       <span style={{ font: `700 12px ${MONO}`, padding: '2px 9px', borderRadius: 7, background: p.a2 + '1c', color: p.a2 }}>{gr.lv}</span>
-                      <span style={{ font: `600 10px ${MONO}`, color: 'var(--tx2)' }}>{Math.round(on / gr.items.length * 100)}%</span>
+                      <span style={{ font: `600 10px ${MONO}`, color: 'var(--tx2)' }}>{gr.items.length ? Math.round(on / gr.items.length * 100) : 0}%</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      {gr.items.map(gi => (
-                        <button key={gi.t} className="hv-line-acc2" onClick={() => { gi.on = !gi.on; commit(); }}
-                          style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 9px', borderRadius: 9, border: '1px solid var(--line)', background: 'var(--panel2)', textAlign: 'left', color: 'var(--tx)' }}>
-                          <span style={checkbox(gi.on, p.a2, p.dark, 15, 5)}>{gi.on ? '✓' : ''}</span>
-                          <span style={{ font: `500 11.5px ${FONT}`, textDecoration: gi.on ? 'line-through' : 'none', opacity: gi.on ? .55 : 1 }}>{gi.t}</span>
-                        </button>
+                      {gr.items.map((gi, gii) => (
+                        <div key={gii} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                          <button className="hv-line-acc2" onClick={() => { gi.on = !gi.on; commit(); }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 7, flex: 1, minWidth: 0, padding: '7px 9px', borderRadius: 9, border: '1px solid var(--line)', background: 'var(--panel2)', textAlign: 'left', color: 'var(--tx)' }}>
+                            <span style={checkbox(gi.on, p.a2, p.dark, 15, 5)}>{gi.on ? '✓' : ''}</span>
+                            <span style={{ font: `500 11.5px ${FONT}`, textDecoration: gi.on ? 'line-through' : 'none', opacity: gi.on ? .55 : 1 }}>{gi.t}</span>
+                          </button>
+                          <DelBtn onClick={() => { gr.items.splice(gii, 1); commit(); }} size={10} />
+                        </div>
                       ))}
+                      <input value={newGr[gr.lv] || ''} onChange={e => setNewGr({ ...newGr, [gr.lv]: e.target.value })}
+                        onKeyDown={e => { if (e.key === 'Enter') addGrammar(gr.lv); }}
+                        placeholder="+ Сэдэв (Enter)" style={{ ...inputSt, padding: '7px 9px', font: `500 11.5px ${FONT}`, background: 'transparent', border: '1px dashed var(--line)' }} />
                     </div>
                   </div>
                 );
@@ -143,16 +166,27 @@ export function English() {
               ))}
             </div>
           </Card>
-          {/* Нөөцүүд */}
+          {/* Нөөцүүд — нэмж/хасаж болно */}
           <Card>
             <SecLabel color={p.a2}>Сонсох · Унших</SecLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, font: `500 12px ${FONT}` }}>
-              {RESOURCES.map(r => (
-                <div key={r.t} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', borderRadius: 10, background: 'var(--panel2)' }}>
-                  <span style={{ flex: 1, minWidth: 0 }}>{r.t}</span>
-                  <span style={{ font: `500 9.5px ${MONO}`, color: 'var(--tx2)' }}>{r.k}</span>
+              {d.resources.map(r => (
+                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', borderRadius: 10, background: 'var(--panel2)' }}>
+                  <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.t}</span>
+                  <span style={{ font: `500 9.5px ${MONO}`, color: 'var(--tx2)', flex: 'none' }}>{r.k}</span>
+                  <DelBtn onClick={() => { d.resources = d.resources.filter(x => x.id !== r.id); commit(); }} size={10} />
                 </div>
               ))}
+            </div>
+            <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }}>
+              <input value={newRes} onChange={e => setNewRes(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addResource(); }}
+                placeholder="Шинэ нөөц…" style={{ ...inputSt, flex: '1 1 110px', padding: '8px 10px', font: `500 12px ${FONT}` }} />
+              <button onClick={() => setResKind((resKind + 1) % RES_KINDS.length)}
+                style={{ flex: 'none', padding: '8px 10px', borderRadius: 10, border: 'none', background: p.a2 + '1c', color: 'var(--acc2)', font: `600 9.5px ${MONO}` }}>
+                {RES_KINDS[resKind]}
+              </button>
+              <button className="hv-bright" onClick={addResource}
+                style={{ ...primaryBtn('var(--acc2)'), padding: '8px 12px', font: `700 12px ${FONT}` }}>+</button>
             </div>
           </Card>
         </div>

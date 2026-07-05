@@ -1,7 +1,7 @@
-import React, { CSSProperties } from 'react';
+import React, { CSSProperties, useEffect, useState } from 'react';
 import { useStore } from '../data/store';
 import { Task } from '../types';
-import { FONT, MONO, ACOL, PCOL, checkbox, chip } from '../theme';
+import { FONT, MONO, ACOL, PCOL, checkbox, chip, inputSt } from '../theme';
 import { IconX } from '../icons';
 
 /** Даалгаврын мөр — Dashboard болон Planner-т хамтдаа хэрэглэнэ */
@@ -52,3 +52,34 @@ export function GoBtn({ onClick, hvClass, children }: { onClick: () => void; hvC
 export const kvRow: CSSProperties = { display: 'flex', justifyContent: 'space-between', gap: 8 };
 export const kvKey: CSSProperties = { color: 'var(--tx2)' };
 export const kvVal: CSSProperties = { fontFamily: MONO, fontWeight: 700 };
+
+export const timeInputSt: CSSProperties = { ...inputSt, padding: '6px 8px', font: `600 12px ${MONO}`, width: 62, flex: 'none', textAlign: 'center' };
+
+/** 24 цагийн HH:MM текст input — Windows-ийн 12ц локалиас хамаарахгүй */
+export function TimeField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [txt, setTxt] = useState(value);
+  useEffect(() => setTxt(value), [value]);
+  const done = () => {
+    const m = /^(\d{1,2})[:.]?(\d{2})$/.exec(txt.trim());
+    if (m) {
+      const v = String(Math.min(23, parseInt(m[1]))).padStart(2, '0') + ':' + String(Math.min(59, parseInt(m[2]))).padStart(2, '0');
+      setTxt(v);
+      if (v !== value) onChange(v);
+    } else setTxt(value);
+  };
+  return (
+    <input value={txt} onChange={e => setTxt(e.target.value)} onBlur={done}
+      onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+      placeholder="HH:MM" style={timeInputSt} />
+  );
+}
+
+/** Жижиг устгах товч (hover-т улаан) */
+export function DelBtn({ onClick, size = 11, opacity = .35 }: { onClick: () => void; size?: number; opacity?: number }) {
+  return (
+    <button className="hv-red" title="Устгах" onClick={onClick}
+      style={{ border: 'none', background: 'none', color: 'var(--tx2)', opacity, padding: 2, display: 'inline-flex', borderRadius: 5, flex: 'none' }}>
+      <IconX size={size} />
+    </button>
+  );
+}

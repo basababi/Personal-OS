@@ -39,13 +39,19 @@ describe('migrate', () => {
     expect(d.routine.items).toEqual([true, false, false]);
   });
 
-  it('дутуу шинэ талбаруудыг (mlLog, history, reminders) нөхнө', () => {
+  it('дутуу шинэ талбаруудыг (mlLog, history, reminders, resources) нөхнө', () => {
     const saved = { theme: 'dark', userName: 'Басбиш' } as Partial<AppData>;
     const d = migrate(saved);
     expect(d.theme).toBe('dark');
     expect(d.mlLog.mins).toBe(0);
     expect(d.history).toEqual({});
     expect(d.reminders.enabled).toBe(true);
+    expect(d.resources.length).toBe(4);
+  });
+
+  it('хэрэглэгч бүх нөөцөө устгасан бол хоосон хэвээр үлдээнэ', () => {
+    const d = migrate({ resources: [] } as Partial<AppData>);
+    expect(d.resources).toEqual([]);
   });
 
   it('хэрэглэгчийн сануулгууд дефолтоор дарагдахгүй', () => {

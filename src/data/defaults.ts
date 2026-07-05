@@ -90,6 +90,12 @@ export function defaults(): AppData {
         ]
       }
     ],
+    resources: [
+      { id: 1, t: 'BBC Learning English', k: 'ПОДКАСТ' },
+      { id: 2, t: '6 Minute English', k: 'ПОДКАСТ' },
+      { id: 3, t: 'EnglishPod101', k: 'ВИДЕО' },
+      { id: 4, t: 'English Grammar in Use · B1', k: 'НОМ' }
+    ],
     engLog: { date: TD, mins: { 'Сонсох': 0, 'Унших': 0, 'Дүрэм': 0, 'Үгийн сан': 0, 'Ярих': 0 } },
     mlLog: { date: TD, mins: 0 },
     history: {},
@@ -135,6 +141,7 @@ export function migrate(saved: Partial<AppData> | null): AppData {
   merged.mlLog = saved.mlLog && typeof saved.mlLog === 'object' ? saved.mlLog : base.mlLog;
   merged.routineSteps = Array.isArray(saved.routineSteps) && saved.routineSteps.length ? saved.routineSteps : base.routineSteps;
   merged.blocks = Array.isArray(saved.blocks) && saved.blocks.length ? saved.blocks : base.blocks;
+  merged.resources = Array.isArray(saved.resources) ? saved.resources : base.resources;
   if (!Array.isArray(merged.routine?.items)) merged.routine = base.routine;
   // routine items тоо алхмуудтай тэнцүү байх ёстой
   if (merged.routine.items.length !== merged.routineSteps.length) {

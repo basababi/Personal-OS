@@ -42,6 +42,8 @@ export interface Word {
 
 export interface GrammarLevel { lv: string; items: { t: string; on: boolean }[] }
 
+export interface Resource { id: number; t: string; k: string }
+
 export interface TimeBlock { id: number; s: string; e: string; t: string }
 
 export type SmartKind = 'routine' | 'english' | 'mlops';
@@ -73,6 +75,7 @@ export interface AppData {
   projects: Project[];
   words: Word[];
   grammar: GrammarLevel[];
+  resources: Resource[];
   engLog: { date: string; mins: Record<string, number> };
   mlLog: { date: string; mins: number };
   history: Record<string, DayLog>; // бодит өдөр тутмын судалгааны түүх

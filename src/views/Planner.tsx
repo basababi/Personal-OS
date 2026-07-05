@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore } from '../data/store';
 import { Card, SecLabel, PageHead, Screen } from '../components/ui';
-import { TaskRow, kvRow, kvKey, kvVal } from '../components/bits';
+import { TaskRow, kvRow, kvKey, kvVal, TimeField, DelBtn } from '../components/bits';
 import { FONT, MONO, AREAS, ACOL, PRIS, PCOL, checkbox, inputSt, primaryBtn, chip } from '../theme';
 import { td, toMin } from '../lib/dates';
 import { taskStats, overdueTasks, habitStats, blockNow, engToday } from '../lib/derive';
@@ -11,6 +11,8 @@ export function Planner() {
   const [newTask, setNewTask] = useState('');
   const [areaIdx, setAreaIdx] = useState(0);
   const [priIdx, setPriIdx] = useState(1);
+  const [editBlocks, setEditBlocks] = useState(false);
+  const [newBlockT, setNewBlockT] = useState('');
 
   const ts = taskStats(d);
   const hs = habitStats(d);
@@ -32,13 +34,29 @@ export function Planner() {
       <PageHead title="Өдрийн төлөвлөгч" sub="«Өглөө утас харахгүй байх нь хамгийн том ялалт.»" />
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, alignItems: 'flex-start' }}>
 
-        {/* Цагийн блокууд */}
+        {/* Цагийн блокууд — шууд эндээс нэмж/засаж/устгана */}
         <Card style={{ flex: '1 1 230px' }}>
-          <SecLabel color={p.a1}>Цагийн блокууд</SecLabel>
+          <SecLabel color={p.a1} right={
+            <button onClick={() => setEditBlocks(!editBlocks)}
+              style={{ border: 'none', borderRadius: 8, padding: '3px 10px', background: editBlocks ? 'var(--acc1)' : p.a1 + '1c', color: editBlocks ? '#fff' : 'var(--acc1)', font: `700 10px ${MONO}` }}>
+              {editBlocks ? 'Болсон' : 'Засах'}
+            </button>
+          }>Цагийн блокууд</SecLabel>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {d.blocks.map(b => {
+            {[...d.blocks].sort((a, b) => a.s.localeCompare(b.s)).map(b => {
               const active = mins >= toMin(b.s) && mins < toMin(b.e);
               const past = mins >= toMin(b.e);
+              if (editBlocks) {
+                return (
+                  <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 6px', borderRadius: 11, background: 'var(--panel2)' }}>
+                    <TimeField value={b.s} onChange={v => { b.s = v; commit(); }} />
+                    <TimeField value={b.e} onChange={v => { b.e = v; commit(); }} />
+                    <input value={b.t} onChange={e => { b.t = e.target.value; commit(); }}
+                      style={{ ...inputSt, flex: 1, padding: '6px 8px', font: `500 12px ${FONT}`, background: 'var(--panel)' }} />
+                    <DelBtn onClick={() => { d.blocks = d.blocks.filter(x => x.id !== b.id); commit(); }} />
+                  </div>
+                );
+              }
               return (
                 <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 11px', borderRadius: 11, background: active ? p.a1 + '16' : 'var(--panel2)', border: '1px solid ' + (active ? p.a1 + '66' : 'transparent'), opacity: past ? .5 : 1 }}>
                   <span style={{ font: `600 10.5px ${MONO}`, width: 76, flex: 'none', color: 'var(--tx2)' }}>{b.s}–{b.e}</span>
@@ -47,6 +65,21 @@ export function Planner() {
                 </div>
               );
             })}
+            {editBlocks && (
+              <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
+                <input value={newBlockT} onChange={e => setNewBlockT(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' && newBlockT.trim()) {
+                      const id = d.blocks.reduce((m, x) => Math.max(m, x.id), 0) + 1;
+                      const lastE = [...d.blocks].sort((a, b) => a.e.localeCompare(b.e)).pop()?.e || '18:00';
+                      d.blocks.push({ id, s: lastE === '23:59' ? '18:00' : lastE, e: '23:59', t: newBlockT.trim() });
+                      setNewBlockT('');
+                      commit();
+                    }
+                  }}
+                  placeholder="+ Шинэ блок (Enter)" style={{ ...inputSt, flex: 1, padding: '8px 10px', font: `500 12px ${FONT}`, background: 'transparent', border: '1px dashed var(--line)' }} />
+              </div>
+            )}
           </div>
         </Card>
 

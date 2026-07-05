@@ -5,6 +5,7 @@ import { FONT, MONO, inputSt, primaryBtn } from '../theme';
 import { DAY_NAMES } from '../lib/dates';
 import { IconX, IconBell, IconDownload, IconUpload } from '../icons';
 import { Reminder } from '../types';
+import { TimeField } from '../components/bits';
 
 function Toggle({ on, onChange, color = 'var(--acc2)' }: { on: boolean; onChange: (v: boolean) => void; color?: string }) {
   return (
@@ -19,26 +20,6 @@ function Row({ children }: { children: React.ReactNode }) {
   return <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 11, background: 'var(--panel2)' }}>{children}</div>;
 }
 
-const timeInputSt: React.CSSProperties = { ...inputSt, padding: '6px 8px', font: `600 12px 'JetBrains Mono', monospace`, width: 62, flex: 'none', textAlign: 'center' };
-
-/** 24 цагийн HH:MM текст input — Windows-ийн 12ц локалиас хамаарахгүй */
-function TimeField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const [txt, setTxt] = useState(value);
-  useEffect(() => setTxt(value), [value]);
-  const done = () => {
-    const m = /^(\d{1,2})[:.]?(\d{2})$/.exec(txt.trim());
-    if (m) {
-      const v = String(Math.min(23, parseInt(m[1]))).padStart(2, '0') + ':' + String(Math.min(59, parseInt(m[2]))).padStart(2, '0');
-      setTxt(v);
-      if (v !== value) onChange(v);
-    } else setTxt(value);
-  };
-  return (
-    <input value={txt} onChange={e => setTxt(e.target.value)} onBlur={done}
-      onKeyDown={e => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
-      placeholder="HH:MM" style={timeInputSt} />
-  );
-}
 
 export function Settings() {
   const { d, commit, p, replaceData } = useStore();
