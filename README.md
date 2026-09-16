@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-8B77DD.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-Windows-0078D6)
 
-**A local-first personal operating system for Windows** — daily planner, habit tracker, MLOps learning roadmap, English A1→B2 journey, and smart native reminders, living in your system tray.
+**A local-first personal operating system for Windows** — daily planner, habit tracker, MLOps learning roadmap, English  journey, and smart native reminders, living in your system tray.
 
 Built with **Electron + React 18 + TypeScript + Vite**. All data stays on your machine — no accounts, no cloud, no telemetry.
 
